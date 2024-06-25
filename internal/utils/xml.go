@@ -3,7 +3,7 @@ package utils
 import (
 	"fmt"
 
-	"github.com/tasnimzotder/go-junitxml/internal/models"
+	"github.com/tasnimzotder/go-junitxml/models"
 )
 
 func CalculateTotalsRootSuite(ts *models.TestSuites) (*models.TestSuites, error) {

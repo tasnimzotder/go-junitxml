@@ -2,10 +2,10 @@ package junitxml
 
 import (
 	"github.com/tasnimzotder/go-junitxml/internal/merger"
-	"github.com/tasnimzotder/go-junitxml/internal/models"
 	"github.com/tasnimzotder/go-junitxml/internal/parser"
 	"github.com/tasnimzotder/go-junitxml/internal/validator"
 	"github.com/tasnimzotder/go-junitxml/internal/writer"
+	"github.com/tasnimzotder/go-junitxml/models"
 )
 
 type JUnitXML struct {

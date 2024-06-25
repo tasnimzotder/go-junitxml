@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/tasnimzotder/go-junitxml/internal/models"
 	"github.com/tasnimzotder/go-junitxml/internal/utils"
+	"github.com/tasnimzotder/go-junitxml/models"
 )
 
 type Parser interface {
