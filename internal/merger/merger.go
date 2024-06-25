@@ -3,10 +3,10 @@ package merger
 import (
 	"fmt"
 
+	"github.com/tasnimzotder/go-junitxml/internal/models"
 	"github.com/tasnimzotder/go-junitxml/internal/parser"
 	"github.com/tasnimzotder/go-junitxml/internal/utils"
 	"github.com/tasnimzotder/go-junitxml/internal/validator"
-	"github.com/tasnimzotder/go-junitxml/models"
 )
 
 type Merger interface {

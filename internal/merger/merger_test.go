@@ -5,8 +5,8 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/tasnimzotder/go-junitxml/internal/models"
 	"github.com/tasnimzotder/go-junitxml/internal/writer"
-	"github.com/tasnimzotder/go-junitxml/models"
 )
 
 var (
