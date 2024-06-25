@@ -6,6 +6,9 @@ import (
 	"github.com/tasnimzotder/go-junitxml/internal/models"
 )
 
+// CalculateTotalsRootSuite calculates the totals for the root test suite and updates the provided TestSuites object.
+// It iterates over each test suite, calculates the totals for test cases, and updates the overall totals.
+// The function returns the updated TestSuites object with the calculated totals or an error if the calculation fails.
 func CalculateTotalsRootSuite(ts *models.TestSuites) (*models.TestSuites, error) {
 	totals := models.TotalsTestSuites{}
 
@@ -14,14 +17,6 @@ func CalculateTotalsRootSuite(ts *models.TestSuites) (*models.TestSuites, error)
 		if err != nil {
 			return nil, fmt.Errorf("failed to calculate totals: %w", err)
 		}
-
-		// calculate totals for test suites
-		// for j := range ts.TestSuites[i].TestCases {
-		// 	if ts.TestSuites[i].TestCases[j].Status != "passed" {
-		// 		isPassedFlag = false
-		// 		break
-		// 	}
-		// }
 
 		if ts.TestSuites[i].Status == models.StatusPassed {
 			totals.PassedTestSuites += 1
@@ -51,6 +46,12 @@ func CalculateTotalsRootSuite(ts *models.TestSuites) (*models.TestSuites, error)
 	return ts, nil
 }
 
+// calculateTotalsTestSuite calculates the totals for a given test suite.
+// It takes a pointer to a TestSuite struct as input and returns a pointer to the updated TestSuite struct and an error, if any.
+// The function calculates the total count of test cases, the number of passed, failed, errored, and skipped test cases,
+// and the total duration of all test cases in the test suite.
+// It also updates the status of the test suite based on the test case statuses.
+// If the totals are mismatched, an error is returned.
 func calculateTotalsTestSuite(ts *models.TestSuite) (*models.TestSuite, error) {
 	statusPassedFlag := true
 	totals := models.TotalsTestCases{}
@@ -94,6 +95,12 @@ func calculateTotalsTestSuite(ts *models.TestSuite) (*models.TestSuite, error) {
 	return ts, nil
 }
 
+// setTestCaseStatus sets the status of a test case based on its failure, skipped, or passed status.
+// It takes a pointer to a TestCase struct as input and modifies its Status field accordingly.
+// If the test case has a failure with the message "Failed", the status is set to StatusFailed.
+// If the test case has a failure with a message other than "Failed", the status is set to StatusErrored.
+// If the test case is skipped, the status is set to StatusSkipped.
+// If none of the above conditions are met, the status is set to StatusPassed.
 func setTestCaseStatus(tc *models.TestCase) {
 	if tc.Failure != nil {
 		if tc.Failure.Message == "Failed" {

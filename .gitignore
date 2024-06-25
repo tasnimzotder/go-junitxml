@@ -30,3 +30,4 @@ output.json
 bin
 Makefile
 .vscode
+cmd/test
