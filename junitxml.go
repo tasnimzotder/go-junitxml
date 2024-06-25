@@ -8,8 +8,11 @@ import (
 	"github.com/tasnimzotder/go-junitxml/internal/writer"
 )
 
+type TestSuites = models.TestSuites
+type TestSuite = models.TestSuite
+type TestCase = models.TestCase
+
 type JUnitXML struct {
-	models.TestSuites
 	parser    parser.Parser
 	validator validator.Validator
 	writer    writer.Writer
