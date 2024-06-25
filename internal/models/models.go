@@ -57,6 +57,7 @@ type TestCase struct {
 	Failure   *Failure      `xml:"failure,omitempty"`
 	Skipped   *Skipped      `xml:"skipped,omitempty"`
 	Duration  time.Duration `xml:"-"` // This field is not part of the XML
+	File      string        `xml:"file,attr"`
 }
 
 type Failure struct {

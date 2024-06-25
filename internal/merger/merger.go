@@ -11,24 +11,39 @@ import (
 
 type Merger interface {
 	Merge(suites ...*models.TestSuites) (*models.TestSuites, error)
+	MergeWithOpts(opts *MergeOptions, suites ...*models.TestSuites) (*models.TestSuites, error)
 	MergeFiles(paths ...string) (*models.TestSuites, error)
+	MergeFilesWithOpts(opts *MergeOptions, paths ...string) (*models.TestSuites, error)
 }
 
 type XMLTestSuitesMerger struct{}
 
 func (m *XMLTestSuitesMerger) Merge(suites ...*models.TestSuites) (*models.TestSuites, error) {
+	return m.MergeWithOpts(parseOptions(), suites...)
+}
+
+func (m *XMLTestSuitesMerger) MergeWithOpts(opts *MergeOptions, suites ...*models.TestSuites) (*models.TestSuites, error) {
 	if len(suites) == 0 {
 		return nil, fmt.Errorf("no test suites to merge")
 	}
 
 	validator := validator.NewValidator()
+	var merged *models.TestSuites
+	var err error
 
-	merged := &models.TestSuites{}
-	for _, suite := range suites {
-		merged.TestSuites = append(merged.TestSuites, suite.TestSuites...)
+	if opts.SingleTestSuite {
+		merged, err = m.mergeIntoSingleSuite(suites)
+		if err != nil {
+			return nil, fmt.Errorf("failed to merge into single suite: %w", err)
+		}
+	} else if !opts.SingleTestSuite {
+		merged, err = m.mergeIntoMultipleSuites(suites)
+		if err != nil {
+			return nil, fmt.Errorf("failed to merge into multiple suites: %w", err)
+		}
 	}
 
-	_, err := utils.CalculateTotalsRootSuite(merged)
+	_, err = utils.CalculateTotalsRootSuite(merged)
 	if err != nil {
 		return nil, fmt.Errorf("failed to calculate totals: %w", err)
 	}
@@ -45,9 +60,14 @@ func (m *XMLTestSuitesMerger) Merge(suites ...*models.TestSuites) (*models.TestS
 }
 
 func (m *XMLTestSuitesMerger) MergeFiles(paths ...string) (*models.TestSuites, error) {
+	return m.MergeFilesWithOpts(parseOptions(), paths...)
+}
+
+func (m *XMLTestSuitesMerger) MergeFilesWithOpts(opts *MergeOptions, paths ...string) (*models.TestSuites, error) {
 	parser := parser.NewParser()
 	validator := validator.NewValidator()
-	suites := make([]*models.TestSuites, 0)
+
+	var allSuites []*models.TestSuites
 
 	for _, path := range paths {
 		// validate the file
@@ -56,15 +76,19 @@ func (m *XMLTestSuitesMerger) MergeFiles(paths ...string) (*models.TestSuites, e
 			return nil, fmt.Errorf("failed to validate file: %w", err)
 		}
 
-		ts, err := parser.ParseFile(path)
+		suites, err := parser.ParseFile(path)
 		if err != nil {
 			return nil, fmt.Errorf("failed to parse file: %w", err)
 		}
 
-		suites = append(suites, ts)
+		allSuites = append(allSuites, suites)
 	}
 
-	return m.Merge(suites...)
+	// if opts.SingleTestSuite {
+	// 	return m.Merge(allSuites...)
+	// }
+
+	return m.MergeWithOpts(opts, allSuites...)
 }
 
 func NewMerger() *XMLTestSuitesMerger {

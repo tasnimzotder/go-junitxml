@@ -20,11 +20,50 @@ type Parser interface {
 type XMLParser struct{}
 
 func (p *XMLParser) Parse(data []byte) (*models.TestSuites, error) {
+	var rootElement struct {
+		XMLName xml.Name
+	}
+
+	err := xml.Unmarshal(data, &rootElement)
+	if err != nil {
+		return nil, fmt.Errorf("failed to unmarshal xml: %w", err)
+	}
+
+	if rootElement.XMLName.Local == "testsuites" {
+		return p.parseTestSuites(data)
+	} else if rootElement.XMLName.Local == "testsuite" {
+		return p.parseTestSuite(data)
+	}
+
+	return nil, fmt.Errorf("failed to parse xml: unknown root element")
+}
+
+func (p *XMLParser) parseTestSuites(data []byte) (*models.TestSuites, error) {
 	var testSuites models.TestSuites
 
 	err := xml.Unmarshal(data, &testSuites)
 	if err != nil {
 		return nil, fmt.Errorf("failed to unmarshal xml: %w", err)
+	}
+
+	_, err = utils.CalculateTotalsRootSuite(&testSuites)
+	if err != nil {
+		return nil, fmt.Errorf("failed to calculate totals: %w", err)
+	}
+
+	return &testSuites, nil
+}
+
+func (p *XMLParser) parseTestSuite(data []byte) (*models.TestSuites, error) {
+	var testSuite models.TestSuite
+
+	err := xml.Unmarshal(data, &testSuite)
+	if err != nil {
+		return nil, fmt.Errorf("failed to unmarshal xml: %w", err)
+	}
+
+	testSuites := models.TestSuites{
+		TestSuites: []models.TestSuite{testSuite},
 	}
 
 	_, err = utils.CalculateTotalsRootSuite(&testSuites)
