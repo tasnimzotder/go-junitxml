@@ -11,6 +11,10 @@ import (
 type TestSuites = models.TestSuites
 type TestSuite = models.TestSuite
 type TestCase = models.TestCase
+
+type TotalsTestSuites = models.TotalsTestSuites
+type TotalsTestCases = models.TotalsTestCases
+
 type MergeOptions = merger.MergeOptions
 
 type JUnitXML struct {

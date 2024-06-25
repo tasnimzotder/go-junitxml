@@ -67,22 +67,44 @@ func (m *XMLTestSuitesMerger) MergeFilesWithOpts(opts *MergeOptions, paths ...st
 	parser := parser.NewParser()
 	validator := validator.NewValidator()
 
-	var allSuites []*models.TestSuites
+	type result struct {
+		suites *models.TestSuites
+		err    error
+	}
+
+	results := make(chan result, len(paths))
 
 	for _, path := range paths {
-		// validate the file
-		err := validator.ValidateFile(path)
-		if err != nil {
-			return nil, fmt.Errorf("failed to validate file: %w", err)
-		}
+		go func(path string) {
+			// validate the file
+			err := validator.ValidateFile(path)
+			if err != nil {
+				results <- result{nil, fmt.Errorf("failed to validate file: %w", err)}
+				return
+			}
 
-		suites, err := parser.ParseFile(path)
-		if err != nil {
-			return nil, fmt.Errorf("failed to parse file: %w", err)
-		}
+			suites, err := parser.ParseFile(path)
+			if err != nil {
+				results <- result{nil, fmt.Errorf("failed to parse file: %w", err)}
+				return
+			}
 
-		allSuites = append(allSuites, suites)
+			results <- result{suites, nil}
+		}(path)
 	}
+
+	var allSuites []*models.TestSuites
+
+	for range paths {
+		res := <-results
+		if res.err != nil {
+			return nil, res.err
+		}
+
+		allSuites = append(allSuites, res.suites)
+	}
+
+	close(results)
 
 	// if opts.SingleTestSuite {
 	// 	return m.Merge(allSuites...)
