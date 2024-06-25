@@ -7,7 +7,7 @@ JUnitXML is a Go package for parsing, validating, writing, and merging JUnit XML
 ### Installation
 
 ```bash
-go get github.com/tasnimzotder/go-junit/pkg
+go get github.com/tasnimzotder/go-junitxml
 ```
 
 ### Parsing
